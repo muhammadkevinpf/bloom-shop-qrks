@@ -2,7 +2,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     categories (
         id BIGSERIAL PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     products (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
         category_id BIGINT NOT NULL REFERENCES categories (id) ON DELETE RESTRICT,
@@ -28,7 +28,7 @@ CREATE TABLE
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     product_variants (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
         product_id UUID NOT NULL REFERENCES products (id) ON DELETE CASCADE,
@@ -39,7 +39,7 @@ CREATE TABLE
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
-CREATE TABLE
+CREATE TABLE IF NOT EXISTS
     product_images (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
         product_id UUID NOT NULL REFERENCES products (id) ON DELETE CASCADE,
@@ -50,8 +50,8 @@ CREATE TABLE
     );
 
 
-CREATE INDEX idx_products_category_id ON products(category_id);
-CREATE INDEX idx_products_status ON products(status);
-CREATE INDEX idx_products_featured ON products(featured) WHERE featured = TRUE;
-CREATE INDEX idx_product_variants_product_id ON product_variants(product_id);
-CREATE INDEX idx_product_variants_sku ON product_variants(sku);
+CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id);
+CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
+CREATE INDEX IF NOT EXISTS idx_products_featured ON products(featured) WHERE featured = TRUE;
+CREATE INDEX IF NOT EXISTS idx_product_variants_product_id ON product_variants(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_variants_sku ON product_variants(sku);
