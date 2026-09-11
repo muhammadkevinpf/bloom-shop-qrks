@@ -74,6 +74,10 @@ public class Product extends PanacheEntityBase {
                 .list();
     }
 
+    public static List<Product> findByPage(int pageIndex, int pageSize) {
+        return find("status = 'ACTIVE'").page(Page.of(pageIndex, pageSize)).list();
+    }
+
     public static List<Product> findByCategoryId(Long categoryId, int pageIndex, int pageSize) {
         return find("categoryId = ?1 and status = 'ACTIVE'", Sort.descending("createdAt"), categoryId)
                 .page(Page.of(pageIndex, pageSize))
