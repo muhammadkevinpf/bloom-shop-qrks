@@ -5,7 +5,10 @@ import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
+import com.bloom.catalog.dto.ProductDetailResponse;
 import com.bloom.catalog.model.Product;
+import com.bloom.catalog.model.ProductImage;
+import com.bloom.catalog.model.ProductVariant;
 import com.bloom.common.dto.ApiResponse;
 import com.bloom.common.dto.PageResponse;
 
@@ -57,7 +60,12 @@ public class ProductRoutes {
                     .build();
         }
 
-        return Response.ok(ApiResponse.ok(product)).build();
+        List<ProductVariant> variants = ProductVariant.findByProductId(product.id);
+        List<ProductImage> images = ProductImage.findByProductId(product.id);
+
+        ProductDetailResponse response = ProductDetailResponse.of(product, variants, images);
+
+        return Response.ok(ApiResponse.ok(response)).build();
     }
 
     @GET
