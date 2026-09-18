@@ -96,8 +96,14 @@ public class Order extends PanacheEntityBase {
         return find("orderNumber", orderNumber).firstResult();
     }
 
-    public static List<Order> findByCustomerId(UUID customerId) {
-        return list("customer.id", Sort.descending("createdAt"), customerId);
+    public static List<Order> findByCustomerId(UUID customerId, int pageIndex, int pageSize) {
+        return find("customer.id", Sort.descending("createdAt"), customerId)
+                .page(pageIndex, pageSize)
+                .list();
+    }
+
+    public static long countByCustomerId(UUID customerId) {
+        return count("customer.id", customerId);
     }
 
     public static Order findByIdAndCustomerId(UUID id, UUID customerId) {
