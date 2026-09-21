@@ -1,11 +1,13 @@
 package com.bloom.catalog.routes;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import com.bloom.catalog.dto.ProductDetailResponse;
+import com.bloom.catalog.dto.VariantDetailResponse;
 import com.bloom.catalog.model.Product;
 import com.bloom.catalog.model.ProductImage;
 import com.bloom.catalog.model.ProductVariant;
@@ -78,5 +80,21 @@ public class ProductRoutes {
         }
         List<Product> products = Product.search(keyword.trim());
         return Response.ok(ApiResponse.ok(products)).build();
+    }
+
+    @GET
+    @Path("/variants/{variantId}")
+    @Operation(summary = "Get product variant by ID")
+    @APIResponse(responseCode = "200", description = "Variant found")
+    @APIResponse(responseCode = "404", description = "Variant not found")
+    public Response getVariantById(@PathParam("variantId") UUID variantId) {
+        ProductVariant variant = ProductVariant.findById(variantId);
+        if (variant == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(ApiResponse.error("Variant not found for id: " + variantId))
+                    .build();
+        }
+
+        return Response.ok(ApiResponse.ok(VariantDetailResponse.from(variant))).build();
     }
 }
