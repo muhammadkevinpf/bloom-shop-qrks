@@ -57,7 +57,7 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5433/bloom_db
+      KC_DB_URL: jdbc:postgresql://postgres:5432/bloom_db
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: postgres
       KC_DB_SCHEMA: keycloak
