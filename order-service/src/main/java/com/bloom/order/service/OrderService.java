@@ -17,8 +17,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
+import com.bloom.common.dto.ApiResponse;
 import com.bloom.common.event.OrderCreatedEvent;
 import com.bloom.common.event.OrderCreatedEvent.OrderItemPayload;
+import com.bloom.order.client.CatalogServiceClient;
+import com.bloom.order.dto.CatalogVariantDto;
 import com.bloom.order.dto.CheckoutRequest;
 import com.bloom.order.model.CartItem;
 import com.bloom.order.model.Customer;
@@ -38,6 +43,10 @@ public class OrderService {
 
     @Inject
     ObjectMapper objectMapper;
+
+    @Inject
+    @RestClient
+    CatalogServiceClient catalogServiceClient;
 
     public String generateOrderNumber() {
         String datePrefix = DateTimeFormatter.ofPattern("yyMMdd")
@@ -101,16 +110,22 @@ public class OrderService {
         List<OrderItemPayload> eventItems = new ArrayList<>();
 
         for (CartItem cartItem : cartItems) {
+            ApiResponse<CatalogVariantDto> response = catalogServiceClient.getVariantById(cartItem.variantId);
+            if (response == null || response.data() == null) {
+                throw new BadRequestException("Product variant not found: " + cartItem.variantId);
+            }
+            CatalogVariantDto variant = response.data();
+
             OrderItem orderItem = new OrderItem();
             orderItem.order = order;
-            orderItem.variantId = cartItem.variantId;
-            // still using placeholder
-            orderItem.sku = "SKU-" + cartItem.variantId.toString().substring(0, 8).toUpperCase();
-            orderItem.productName = "Product Item";
-            orderItem.unitPrice = new BigDecimal("50.00");
-            // still using placeholder
+            orderItem.variantId = variant.id();
+            orderItem.sku = variant.sku();
+            orderItem.productName = variant.productName();
+            orderItem.color = variant.color();
+            orderItem.size = variant.size();
+            orderItem.unitPrice = variant.price();
             orderItem.quantity = cartItem.quantity;
-            orderItem.totalPrice = orderItem.unitPrice.multiply(BigDecimal.valueOf(cartItem.quantity));
+            orderItem.totalPrice = variant.price().multiply(BigDecimal.valueOf(cartItem.quantity));
 
             order.items.add(orderItem);
 
