@@ -1,0 +1,68 @@
+{
+  "id": "bloom",
+  "realm": "bloom",
+  "displayName": "Bloom E-Commerce",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "customer",
+        "description": "Standard customer role"
+      },
+      {
+        "name": "admin",
+        "description": "Store administrator role"
+      }
+    ]
+  },
+  "defaultRoles": [
+    "customer"
+  ],
+  "clients": [
+    {
+      "clientId": "bloom-app",
+      "name": "Bloom Frontend & Service Client",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8080/*",
+        "http://localhost:3000/*",
+        "*"
+      ],
+      "webOrigins": [
+        "*"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "a0000000-0000-0000-0000-000000000001",
+      "username": "customer@bloom.com",
+      "email": "customer@bloom.com",
+      "firstName": "Jane",
+      "lastName": "Doe",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "customer"
+      ]
+    }
+  ]
+}
