@@ -47,18 +47,6 @@
             <artifactId>quarkus-flyway</artifactId>
         </dependency>
 
-        <!-- Messaging (Kafka) -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-messaging-kafka</artifactId>
-        </dependency>
-
-        <!-- Security & Auth (Keycloak OIDC) -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-oidc</artifactId>
-        </dependency>
-
         <!-- API Documentation -->
         <dependency>
             <groupId>io.quarkus</groupId>
