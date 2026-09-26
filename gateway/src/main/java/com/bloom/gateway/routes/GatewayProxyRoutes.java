@@ -40,6 +40,11 @@ public class GatewayProxyRoutes {
     @Route(path = "/api/v1/*", order = 1)
     public void proxyApiRequests(RoutingContext rc) {
         String uri = rc.request().uri();
+        if (uri.startsWith("/api/v1/auth")) {
+            rc.next();
+            return;
+        }
+
         String targetBaseUrl = resolveTargetUrl(uri);
 
         if (targetBaseUrl == null) {
