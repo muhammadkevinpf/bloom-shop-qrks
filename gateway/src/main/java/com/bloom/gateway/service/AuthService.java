@@ -115,10 +115,12 @@ public class AuthService {
 
         JsonObject userJson = new JsonObject()
                 .put("username", request.email())
+                .put("email", request.email())
                 .put("firstName", request.firstName())
                 .put("lastName", request.lastName())
                 .put("enabled", true)
                 .put("emailVerified", true)
+                .put("requiredActions", List.of())
                 .put("credentials", List.of(
                         Map.of("type", "password", "value", request.password(), "temporary", false)));
 
