@@ -24,8 +24,6 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 public class AuthService {
 
-    private static final Logger LOG = Logger.getLogger(AuthService.class);
-
     @Inject
     Vertx vertx;
 
