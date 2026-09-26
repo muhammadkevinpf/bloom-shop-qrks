@@ -2,11 +2,14 @@ package com.bloom.gateway.routes;
 
 import io.quarkus.vertx.web.Route;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import java.util.List;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -37,14 +40,17 @@ public class GatewayProxyRoutes {
         this.webClient = WebClient.create(vertx);
     }
 
+    private static final List<String> LOCAL_BYPASS_PREFIXES = List.of(
+            "/api/v1/auth");
+
     @Route(path = "/api/v1/*", order = 1)
     public void proxyApiRequests(RoutingContext rc) {
-        String uri = rc.request().uri();
-        if (uri.startsWith("/api/v1/auth")) {
+        if (shouldBypassProxy(rc)) {
             rc.next();
             return;
         }
 
+        String uri = rc.request().uri();
         String targetBaseUrl = resolveTargetUrl(uri);
 
         if (targetBaseUrl == null) {
@@ -107,5 +113,15 @@ public class GatewayProxyRoutes {
             LOG.errorf(err, "Failed to proxy request to: %s", fullTargetUrl);
             rc.response().setStatusCode(502).end("{\"error\": \"Bad Gateway: " + err.getMessage() + "\"}");
         });
+    }
+
+    private Boolean shouldBypassProxy(RoutingContext rc) {
+        if (rc.request().method() == HttpMethod.OPTIONS) {
+            return true;
+        }
+
+        String uri = rc.request().uri();
+        return LOCAL_BYPASS_PREFIXES.stream()
+                .anyMatch(uri::startsWith);
     }
 }
