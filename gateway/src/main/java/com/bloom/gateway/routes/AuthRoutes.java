@@ -6,6 +6,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.bloom.common.dto.ApiResponse;
 import com.bloom.gateway.dto.LoginRequest;
+import com.bloom.gateway.dto.RefreshTokenRequest;
 import com.bloom.gateway.dto.RegisterRequest;
 import com.bloom.gateway.service.AuthService;
 
@@ -46,5 +47,15 @@ public class AuthRoutes {
         return authService.register(req)
                 .map(token -> Response.status(Response.Status.CREATED)
                         .entity(ApiResponse.ok("Registration successful", token)).build());
+    }
+
+    @POST
+    @Path("/refresh")
+    @Operation(summary = "Refresh Customer Token", description = "Generates a new access token for user")
+    @APIResponse(responseCode = "200", description = "Token refreshed successfully")
+    @APIResponse(responseCode = "401", description = "Invalid or expired token")
+    public Uni<Response> refresh(@Valid RefreshTokenRequest request) {
+        return authService.refreshToken(request)
+                .map(token -> Response.ok(ApiResponse.ok("Token refreshed successfully", token)).build());
     }
 }
