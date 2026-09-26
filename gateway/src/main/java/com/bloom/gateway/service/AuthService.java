@@ -7,6 +7,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import com.bloom.gateway.dto.LoginRequest;
+import com.bloom.gateway.dto.RefreshTokenRequest;
 import com.bloom.gateway.dto.RegisterRequest;
 import com.bloom.gateway.dto.TokenResponse;
 
@@ -83,6 +84,36 @@ public class AuthService {
     public Uni<TokenResponse> register(RegisterRequest request) {
         return getAdminToken().chain(adminToken -> createUser(adminToken, request))
                 .chain(() -> login(new LoginRequest(request.email(), request.password())));
+    }
+
+    public Uni<TokenResponse> refreshToken(RefreshTokenRequest request) {
+        String tokenUrl = String.format("%s/realms/%s/protocol/openid-connect/token", keycloakBaseUrl, keycloakRealm);
+
+        MultiMap form = MultiMap.caseInsensitiveMultiMap();
+        form.set("client_id", keycloakClientId);
+        form.set("grant_type", "refresh_token");
+        form.set("refresh_token", request.refreshToken());
+
+        return Uni.createFrom().emitter(emitter -> {
+            webClient.postAbs(tokenUrl)
+                    .sendForm(form)
+                    .onSuccess(response -> {
+                        if (response.statusCode() == 200) {
+                            JsonObject json = response.bodyAsJsonObject();
+                            TokenResponse tokenResponse = new TokenResponse(
+                                    json.getString("access_token"),
+                                    json.getString("refresh_token"),
+                                    json.getLong("expires_in"),
+                                    json.getString("token_type"));
+                            emitter.complete(tokenResponse);
+                        } else {
+                            emitter.fail(new WebApplicationException("Invalid or expired refresh token",
+                                    Response.Status.UNAUTHORIZED));
+                        }
+                    })
+                    .onFailure(err -> emitter
+                            .fail(new WebApplicationException("Keycloak connection error: " + err.getMessage(), 502)));
+        });
     }
 
     private Uni<String> getAdminToken() {
