@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.*;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-public class CategoryRoutestTest {
+public class CategoryRoutesTest {
 
     private static final String CATEGORY_PATH = "/api/v1/categories";
 
