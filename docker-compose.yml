@@ -17,6 +17,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
   kafka:
     image: confluentinc/cp-kafka:7.6.0
     container_name: bloom-kafka
@@ -40,6 +41,7 @@ services:
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
     volumes:
       - kafka_data:/var/lib/kafka/data
+
   kafdrop:
     image: obsidiandynamics/kafdrop:4.0.2
     container_name: bloom-kafdrop
@@ -49,6 +51,7 @@ services:
       KAFKA_BROKERCONNECT: "kafka:29092"
     depends_on:
       - kafka
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
     container_name: bloom-keycloak
@@ -70,6 +73,34 @@ services:
       postgres:
         condition: service_healthy
 
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: bloom-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: bloom-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
 volumes:
   postgres_data:
   kafka_data:
+  prometheus_data:
+  grafana_data:
