@@ -3,6 +3,7 @@ package com.bloom.order;
 import com.bloom.order.dto.CheckoutRequest;
 import com.bloom.order.model.Order;
 import com.bloom.order.model.OrderStatus;
+import com.bloom.order.model.PaymentStatus;
 import com.bloom.order.service.OrderService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -139,6 +140,54 @@ public class OrderRoutesTest {
 
         @Test
         @org.junit.jupiter.api.Order(4)
+        public void testPayOrder() {
+                Order mockOrder = new Order();
+                mockOrder.id = UUID.randomUUID();
+                mockOrder.orderNumber = TEST_ORDER_NUMBER;
+                mockOrder.status = OrderStatus.SHIPPED;
+                mockOrder.paymentStatus = PaymentStatus.PAID;
+
+                Mockito.when(orderService.payOrder(ArgumentMatchers.eq(TEST_ORDER_NUMBER),
+                                ArgumentMatchers.eq(CUSTOMER_ID)))
+                                .thenReturn(mockOrder);
+
+                given()
+                                .auth().oauth2(token)
+                                .when()
+                                .post(ORDERS_PATH + "/" + TEST_ORDER_NUMBER + "/pay")
+                                .then()
+                                .statusCode(200)
+                                .body("success", is(true))
+                                .body("data.orderNumber", equalTo(TEST_ORDER_NUMBER))
+                                .body("data.status", equalTo("SHIPPED"))
+                                .body("data.paymentStatus", equalTo("PAID"));
+        }
+
+        @Test
+        @org.junit.jupiter.api.Order(5)
+        public void testCompleteOrder() {
+                Order mockOrder = new Order();
+                mockOrder.id = UUID.randomUUID();
+                mockOrder.orderNumber = TEST_ORDER_NUMBER;
+                mockOrder.status = OrderStatus.DELIVERED;
+
+                Mockito.when(orderService.completeOrder(ArgumentMatchers.eq(TEST_ORDER_NUMBER),
+                                ArgumentMatchers.eq(CUSTOMER_ID)))
+                                .thenReturn(mockOrder);
+
+                given()
+                                .auth().oauth2(token)
+                                .when()
+                                .post(ORDERS_PATH + "/" + TEST_ORDER_NUMBER + "/complete")
+                                .then()
+                                .statusCode(200)
+                                .body("success", is(true))
+                                .body("data.orderNumber", equalTo(TEST_ORDER_NUMBER))
+                                .body("data.status", equalTo("DELIVERED"));
+        }
+
+        @Test
+        @org.junit.jupiter.api.Order(6)
         public void testGetOrderHistory() {
                 given()
                                 .auth().oauth2(token)

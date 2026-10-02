@@ -176,4 +176,42 @@ public class OrderService {
         }
         return order;
     }
+
+    @Transactional
+    public Order payOrder(String orderNumber, UUID customerId) {
+        Order order = getOrderByNumber(orderNumber, customerId);
+
+        if (order.paymentStatus == PaymentStatus.PAID) {
+            throw new BadRequestException("Order " + order.orderNumber + " is already paid");
+        }
+
+        if (order.status == OrderStatus.CANCELLED) {
+            throw new BadRequestException("Cannot pay for cancelled order");
+        }
+
+        order.paymentStatus = PaymentStatus.PAID;
+        order.status = OrderStatus.SHIPPED;
+
+        return order;
+    }
+
+    @Transactional
+    public Order completeOrder(String orderNumber, UUID customerId) {
+        Order order = getOrderByNumber(orderNumber, customerId);
+
+        if (order.paymentStatus != PaymentStatus.PAID) {
+            throw new BadRequestException("Order " + order.orderNumber + " is not paid yet");
+        }
+
+        if (order.status == OrderStatus.CANCELLED) {
+            throw new BadRequestException("Cannot complete a cancelled order");
+        }
+
+        if (order.status == OrderStatus.DELIVERED) {
+            throw new BadRequestException("Order " + order.orderNumber + " is already delivered");
+        }
+
+        order.status = OrderStatus.DELIVERED;
+        return order;
+    }
 }
