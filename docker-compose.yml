@@ -97,6 +97,15 @@ services:
     depends_on:
       - prometheus
 
+  mailpit:
+    image: axllent/mailpit:v1.15
+    container_name: bloom-mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    environment:
+      - MP_MAX_MESSAGES=500
+
   catalog-service:
     build:
       context: ./catalog-service
@@ -146,6 +155,21 @@ services:
         condition: service_healthy
       kafka:
         condition: service_started
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: bloom-notification-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+    depends_on:
+      - mailpit
+      - kafka
 
   gateway:
     build:
