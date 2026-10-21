@@ -7,6 +7,7 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import com.bloom.catalog.dto.ProductDetailResponse;
+import com.bloom.catalog.dto.ProductSummaryResponse;
 import com.bloom.catalog.dto.VariantDetailResponse;
 import com.bloom.catalog.model.Product;
 import com.bloom.catalog.model.ProductImage;
@@ -36,7 +37,9 @@ public class ProductRoutes {
             @QueryParam("size") @DefaultValue("10") int size) {
         List<Product> products = Product.findByPage(page, size);
         long totalCount = Product.count("status", "ACTIVE");
-        PageResponse<Product> pageResponse = PageResponse.of(products, page, size, totalCount);
+
+        PageResponse<ProductSummaryResponse> pageResponse = PageResponse.of(ProductSummaryResponse.fromList(products),
+                page, size, totalCount);
         return Response.ok(ApiResponse.ok(pageResponse)).build();
     }
 
@@ -46,7 +49,7 @@ public class ProductRoutes {
     @APIResponse(responseCode = "200", description = "List of featured products")
     public Response getFeaturedProducts() {
         List<Product> products = Product.findFeatured();
-        return Response.ok(ApiResponse.ok(products)).build();
+        return Response.ok(ApiResponse.ok(ProductSummaryResponse.fromList(products))).build();
     }
 
     @GET
@@ -79,7 +82,7 @@ public class ProductRoutes {
             return Response.ok(ApiResponse.ok(List.of())).build();
         }
         List<Product> products = Product.search(keyword.trim());
-        return Response.ok(ApiResponse.ok(products)).build();
+        return Response.ok(ApiResponse.ok(ProductSummaryResponse.fromList(products))).build();
     }
 
     @GET
