@@ -169,9 +169,10 @@ public class OrderService {
         return order;
     }
 
+    @Transactional
     public Order getOrderByNumber(String orderNumber, UUID customerId) {
         Order order = Order.findByOrderNumber(orderNumber);
-        if (order == null || !order.customer.id.equals(customerId)) {
+        if (order == null || order.customer == null || !order.customer.id.equals(customerId)) {
             throw new NotFoundException("Order not found: " + orderNumber);
         }
         return order;

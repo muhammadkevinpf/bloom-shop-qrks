@@ -93,7 +93,9 @@ public class Order extends PanacheEntityBase {
 
     // helper query
     public static Order findByOrderNumber(String orderNumber) {
-        return find("orderNumber", orderNumber).firstResult();
+        return find("SELECT o from Order o LEFT JOIN FETCH o.customer LEFT JOIN FETCH o.items where o.orderNumber = ?1",
+                orderNumber)
+                .firstResult();
     }
 
     public static List<Order> findByCustomerId(UUID customerId, int pageIndex, int pageSize) {

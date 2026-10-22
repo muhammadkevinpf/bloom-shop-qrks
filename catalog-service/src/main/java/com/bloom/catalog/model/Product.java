@@ -65,7 +65,7 @@ public class Product extends PanacheEntityBase {
     }
 
     public static List<Product> findFeatured() {
-        return list("featured = true and status = 'ACTIVE'", Sort.descending("random()"));
+        return list("featured = true and status = 'ACTIVE' order by random()");
     }
 
     public static List<Product> findLatest(int limit) {
